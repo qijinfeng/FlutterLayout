@@ -177,6 +177,7 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
 
 //------------------------- TapBoxA ----------------------------------
 class TapBoxA extends StatefulWidget {
+
   TapBoxA({Key key}) : super(key: key);
 
   @override
@@ -256,8 +257,11 @@ class _ParentWidgetState extends State<ParentWidget> {
 class TapBoxB extends StatelessWidget {
   //@required必填参数，要使用@required注解，需要导入foundation library（该库重新导出Dart的meta.dart）
   // 'package: flutter/foundation.dart';
-  TapBoxB({Key key, this.active: false, @required this.onChanged})
-      : super(key: key);
+  TapBoxB({
+    Key key,
+    this.active: false,
+    @required this.onChanged
+  }) : super(key: key);
 
   final bool active;
   final ValueChanged<bool> onChanged; //一个方法
@@ -290,8 +294,11 @@ class TapBoxB extends StatelessWidget {
 //----------------------------- TapBoxC ------------------------------
 class TapBoxC extends StatefulWidget {
 
-  TapBoxC({Key key, this.active: false, @required this.onChanged})
-      :super(key: key);
+  TapBoxC({
+    Key key,
+    this.active: false,
+    @required this.onChanged
+  }) :super(key: key);
 
   final bool active;
   final ValueChanged<bool> onChanged;
