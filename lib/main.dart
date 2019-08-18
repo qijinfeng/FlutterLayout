@@ -83,7 +83,8 @@ class MyApp extends StatelessWidget {
             buttonSection,
             textSection,
             new TapBoxA(),
-            new ParentWidget(),
+            new TapBParentWidget(),
+            new TapCParentWidget()
           ],
         ),
       ),
@@ -215,15 +216,16 @@ class _TapBoxAState extends State<TapBoxA> {
   }
 }
 
-// ParentWidget 为 TapBoxB 管理状态.
+//------------------------- TapBoxB ----------------------------------
 
-//------------------------ ParentWidget --------------------------------
-class ParentWidget extends StatefulWidget {
+//------------------------ TapBParentWidget为 TapBoxB 管理状态.---------
+
+class TapBParentWidget extends StatefulWidget {
   @override
-  _ParentWidgetState createState() => new _ParentWidgetState();
+  _TapBParentWidgetState createState() => new _TapBParentWidgetState();
 }
 
-class _ParentWidgetState extends State<ParentWidget> {
+class _TapBParentWidgetState extends State<TapBParentWidget> {
   bool _active = false;
 
   void _handleTapBoxChanged(bool newValue) {
@@ -235,24 +237,13 @@ class _ParentWidgetState extends State<ParentWidget> {
   @override
   Widget build(BuildContext context) {
     return new Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          new TapBoxB(
-            active: _active,
-            onChanged: _handleTapBoxChanged,
-          ),
-          new TapBoxC(
-              active: _active,
-              onChanged: _handleTapBoxChanged)
-        ],
+      child: new TapBoxB(
+        active: _active,
+        onChanged: _handleTapBoxChanged,
       ),
-
     );
   }
 }
-
-//------------------------- TapBoxB ----------------------------------
 
 class TapBoxB extends StatelessWidget {
   //@required必填参数，要使用@required注解，需要导入foundation library（该库重新导出Dart的meta.dart）
@@ -292,6 +283,33 @@ class TapBoxB extends StatelessWidget {
 
 
 //----------------------------- TapBoxC ------------------------------
+//---TapCParentWidget与TapBoxC混合管理状态，点击切换状态，按下显示一个绿色边框，松开不可见
+
+class TapCParentWidget extends StatefulWidget {
+  @override
+  _TapCParentWidgetState createState() => new _TapCParentWidgetState();
+}
+
+class _TapCParentWidgetState extends State<TapCParentWidget> {
+  bool _active = false;
+
+  void _handleTapBoxChanged(bool newValue) {
+    setState(() {
+      _active = newValue;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      child: new TapBoxC(
+        active: _active,
+        onChanged: _handleTapBoxChanged,
+      ),
+    );
+  }
+}
+
 class TapBoxC extends StatefulWidget {
 
   TapBoxC({
@@ -308,8 +326,58 @@ class TapBoxC extends StatefulWidget {
 }
 
 class _TapBoxCState extends State<TapBoxC> {
+
+  bool _highlight = false;
+
+  //按下
+  void _handleTapDown(TapDownDetails details) {
+    setState(() {
+      _highlight = true;
+    });
+  }
+
+  //松开
+  void _handleTapUp(TapUpDetails details) {
+    setState(() {
+      _highlight = false;
+    });
+  }
+
+  void _handleTapCancel() {
+    setState(() {
+      _highlight = false;
+    });
+  }
+
+  //点击
+  void _handleTap() {
+    widget.onChanged(!widget.active);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return null;
+    // This example adds a green border on tap down.
+    // On tap up, the square changes to the opposite state.
+    return new GestureDetector(
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      //onTapDown之后
+      onTap: _handleTap,
+      onTapCancel: _handleTapCancel,
+      //onTapDown之后
+      child: new Container(
+        child: new Center(
+          child: new Text(widget.active ? 'Active' : 'Inactive',
+              style: new TextStyle(fontSize: 32.0, color: Colors.white)),
+        ),
+        width: 200.0,
+        height: 200.0,
+        decoration: new BoxDecoration(
+          color: widget.active ? Colors.lightGreen[700] : Colors.grey[600],
+          border: _highlight ? new Border.all(
+            color: Colors.teal[700], width: 10.0,) : null,
+        ),
+      ),
+    );
   }
 }
