@@ -39,9 +39,7 @@ class MyApp extends StatelessWidget {
                     new TitleSectionWidget(),
                     new ButtonSectionWidget(),
                     new TextSectionWidget(),
-                    new TapBoxA(),
-                    new TapBParentWidget(),
-                    new TapCParentWidget(),
+                    new TapRow(),
                     new FormWidget(),
                   ],
                 ),
@@ -185,7 +183,8 @@ class TextSectionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Container(
-      padding: const EdgeInsets.only(top: 32.0, left: 15.0, right: 15.0),
+      padding: const EdgeInsets.only(
+          top: 32.0, left: 15.0, right: 15.0, bottom: 15),
       child: new Text(
         '''Lake Oeschinen lies at the foot of the Blüemlisalp in the Bernese Alps.Situated 1,578 meters above sea level,it is one of the larger Alpine Lakes.A gondola ride from Kandersteg, followed by a half-hour walk through pastures and pine forest,leads you to the lake,which warms to 20 degrees Celsius in the summer.Activities enjoyed here include rowing, and riding the summer toboggan run.''',
         softWrap: true,
@@ -253,6 +252,28 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
   }
 }
 
+
+//-----------------------------Tap----------------------------------
+
+class TapRow extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      margin: const EdgeInsets.symmetric(horizontal: 15),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          new TapBoxA(),
+          new TapBParentWidget(),
+          new TapCParentWidget()
+        ],
+      ),
+    );
+  }
+}
+
 // TapBoxA 管理自身状态.
 
 //------------------------- TapBoxA ----------------------------------
@@ -281,14 +302,27 @@ class _TapBoxAState extends State<TapBoxA> {
       onTap: _handleTap, //点击回调
       child: new Container(
         child: new Center(
-            child: new Text(
-              _active ? 'Active' : 'Inactive',
-              style: new TextStyle(fontSize: 32.0, color: Colors.white),
-            )),
-        width: 200,
-        height: 200,
+          child: new Text(
+            _active ? 'Active' : 'Inactive',
+            style: new TextStyle(fontSize: 16.0, color: Colors.white),
+          ),
+        ),
+        width: 80,
+        height: 80,
         decoration: new BoxDecoration(
-            color: _active ? Colors.lightGreen[700] : Colors.grey[600]
+          //borderRadius: new BorderRadius.circular(20),
+          border: new Border.all(color: Color(0xFFFF0000), width: 1),
+          borderRadius: const BorderRadius.all(Radius.elliptical(10, 10)),
+          color: _active ? Colors.lightGreen[700] : Colors.grey[600],
+          // 生成俩层阴影，一层绿，一层黄， 阴影位置由offset决定,阴影模糊层度由blurRadius大小决定（大就更透明更扩散），阴影模糊大小由spreadRadius决定
+          boxShadow: [
+            BoxShadow(color: Color(0x99000000),
+                offset: Offset(0, 0),
+                //offset-x横向阴影的大小，正值阴影在右边，负值阴影在左边，0的时候阴影中盒子后面，看不见的，如果有blur-radius值会有模糊效果。offset-y,纵向阴影的大小
+                blurRadius: 2.0,
+                //阴影的模糊程度，值越大，阴影越模糊
+                spreadRadius: 1.0), //阴影的扩大缩小，正值时，阴影扩大；负值时，阴影缩小，默认为0，和盒子同样大
+          ],
         ),
       ),
     );
@@ -347,11 +381,11 @@ class TapBoxB extends StatelessWidget {
         child: new Center(
           child: new Text(
             active ? 'Active' : 'Inactive',
-            style: new TextStyle(fontSize: 32.0, color: Colors.white),
+            style: new TextStyle(fontSize: 16.0, color: Colors.white),
           ),
         ),
-        width: 200.0,
-        height: 200.0,
+        width: 80.0,
+        height: 80.0,
         decoration: new BoxDecoration(
           color: active ? Colors.lightGreen[700] : Colors.grey[600],
         ),
@@ -447,10 +481,10 @@ class _TapBoxCState extends State<TapBoxC> {
       child: new Container(
         child: new Center(
           child: new Text(widget.active ? 'Active' : 'Inactive',
-              style: new TextStyle(fontSize: 32.0, color: Colors.white)),
+              style: new TextStyle(fontSize: 16.0, color: Colors.white)),
         ),
-        width: 200.0,
-        height: 200.0,
+        width: 80.0,
+        height: 80.0,
         decoration: new BoxDecoration(
           color: widget.active ? Colors.lightGreen[700] : Colors.grey[600],
           border: _highlight ? new Border.all(
@@ -475,29 +509,37 @@ class _FormWidgetState extends State<FormWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return new Form(
-        child: new Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            new TextFormField(
-              validator: (value) {
-                if (value.isEmpty) {
-                  return 'Please enter some text';
-                }
-                return null;
-              },
-            ), new Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: new RaisedButton(
-                onPressed: () {
-                  if (_formKey.currentState.validate()) {
-
+    return
+      new Container(
+        decoration: new BoxDecoration(
+          color: Colors.redAccent
+        ),
+        margin: const EdgeInsets.all(16),
+        child: new Form(
+          child: new Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              new TextFormField(
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please enter some text';
                   }
+                  return null;
                 },
-                child: Text('submit'),
-              ),
-            )
-          ],
-        ));
+              ), new Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: new RaisedButton(
+                  onPressed: () {
+                    if (_formKey.currentState.validate()) {
+
+                    }
+                  },
+                  child: Text('submit'),
+                ),
+              )
+            ],
+          ),
+        ),
+      );
   }
 }
