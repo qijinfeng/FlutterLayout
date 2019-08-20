@@ -6,9 +6,101 @@ void main() => runApp(new MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    Widget titleSection = new Container(
+    return new MaterialApp(
+      title: "Flutter Layout",
+      theme: new ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: new Scaffold(
+          body: new Column(
+            mainAxisAlignment: MainAxisAlignment.start, //主轴
+            crossAxisAlignment: CrossAxisAlignment.center, //交叉轴
+            children: <Widget>[
+              new MyAppBar(
+                title: new Text(
+                  'Flutter Layout',
+                  style: Theme
+                      .of(context)
+                      .primaryTextTheme
+                      .title,
+                ),
+              ),
+              new Expanded(
+                child: new ListView(
+                  padding: EdgeInsets.all(0),
+                  shrinkWrap: true, //内容适配
+                  children: [
+                    new Image.asset(
+                      'images/lake.jpg',
+                      width: 600.0,
+                      height: 240.0,
+                      fit: BoxFit.cover,
+                    ),
+                    new TitleSectionWidget(),
+                    new ButtonSectionWidget(),
+                    new TextSectionWidget(),
+                    new TapBoxA(),
+                    new TapBParentWidget(),
+                    new TapCParentWidget(),
+                    new FormWidget(),
+                  ],
+                ),
+              ),
+            ],
+          )
+      ),
+    );
+  }
+}
+
+
+class MyAppBar extends StatelessWidget {
+  MyAppBar({Key key, this.title}) :super(key: key);
+
+  // Widget子类中的字段往往都会定义为"final"
+
+  final Widget title;
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+//      height: 60.0,  //单位是逻辑上的像素（并非真实的像素，类似于浏览器中的像素）
+      padding: const EdgeInsets.only(top: 20,),
+      margin: const EdgeInsets.all(0),
+      decoration: new BoxDecoration(color: Colors.blue[500]),
+      // Row 是水平方向的线性布局（linear layout）
+      child: new Row(
+        //列表项的类型是 <Widget>
+        children: <Widget>[
+          new IconButton(
+            icon: new Icon(Icons.menu, color: Colors.black54,),
+            tooltip: 'Navigation menu',
+            onPressed: null, // null 会禁用 button
+          ),
+          // Expanded expands its child to fill the available space.
+          new Expanded(
+            child: Center(child: title,),
+          ),
+          new IconButton(
+            icon: new Icon(Icons.search, color: Colors.black54,),
+            tooltip: 'Search',
+            onPressed: null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+class TitleSectionWidget extends StatelessWidget {
+  TitleSectionWidget({Key key}) :super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
       padding: const EdgeInsets.only(
-          top: 32.0, left: 15, right: 15, bottom: 15),
+          top: 32.0, left: 15, right: 15, bottom: 32),
       child: new Row(
         children: [
           new Expanded(
@@ -41,8 +133,15 @@ class MyApp extends StatelessWidget {
         ],
       ),
     );
+  }
+}
 
-    Widget buttonSection = new Container(
+class ButtonSectionWidget extends StatelessWidget {
+  ButtonSectionWidget({Key key}) :super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
       child: new Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -50,43 +149,6 @@ class MyApp extends StatelessWidget {
           buildButtonColumn(context, Icons.near_me, 'ROUTE'),
           buildButtonColumn(context, Icons.share, 'SHARE'),
         ],
-      ),
-    );
-
-    Widget textSection = new Container(
-      padding: const EdgeInsets.only(top: 32.0, left: 15.0, right: 15.0),
-      child: new Text(
-        '''Lake Oeschinen lies at the foot of the Blüemlisalp in the Bernese Alps. 
-        Situated 1,578 meters above sea level,it is one of the larger Alpine Lakes.
-         A gondola ride from Kandersteg, followed by a half-hour walk through pastures and pine forest,
-         leads you to the lake,which warms to 20 degrees Celsius in the summer.
-         Activities enjoyed here include rowing, and riding the summer toboggan run.''',
-        softWrap: true,
-      ),
-    );
-
-    return new MaterialApp(
-      title: "Flutter Layout",
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: new Scaffold(
-        body: new ListView(
-          children: [
-            new Image.asset(
-              'images/lake.jpg',
-              width: 600.0,
-              height: 240.0,
-              fit: BoxFit.cover,
-            ),
-            titleSection,
-            buttonSection,
-            textSection,
-            new TapBoxA(),
-            new TapBParentWidget(),
-            new TapCParentWidget()
-          ],
-        ),
       ),
     );
   }
@@ -116,28 +178,45 @@ class MyApp extends StatelessWidget {
   }
 }
 
-///有状态的widget,点击改变数量
-class FavoriteWidget extends StatefulWidget {
+
+class TextSectionWidget extends StatelessWidget {
+  TextSectionWidget({Key key}) :super(key: key);
+
   @override
-  State<StatefulWidget> createState() {
-    return new _FavoriteWidgetState();
+  Widget build(BuildContext context) {
+    return new Container(
+      padding: const EdgeInsets.only(top: 32.0, left: 15.0, right: 15.0),
+      child: new Text(
+        '''Lake Oeschinen lies at the foot of the Blüemlisalp in the Bernese Alps.Situated 1,578 meters above sea level,it is one of the larger Alpine Lakes.A gondola ride from Kandersteg, followed by a half-hour walk through pastures and pine forest,leads you to the lake,which warms to 20 degrees Celsius in the summer.Activities enjoyed here include rowing, and riding the summer toboggan run.''',
+        softWrap: true,
+      ),
+    );
   }
 }
 
+
+///有状态的widget,点击改变数量
+class FavoriteWidget extends StatefulWidget {
+  FavoriteWidget({Key key}) :super(key: key);
+
+  @override
+  _FavoriteWidgetState createState() => new _FavoriteWidgetState();
+}
+
 class _FavoriteWidgetState extends State<FavoriteWidget> {
-  bool _isFavorited = true;
+  bool _isFavorite = true;
   int _favoriteCount = 4000001;
 
   void _toggleFavorite() {
     setState(() {
       // If the lake is currently favorited, unfavorite it.
-      if (_isFavorited) {
+      if (_isFavorite) {
         _favoriteCount -= 1;
-        _isFavorited = false;
+        _isFavorite = false;
         // Otherwise, favorite it.
       } else {
         _favoriteCount += 1;
-        _isFavorited = true;
+        _isFavorite = true;
       }
     });
   }
@@ -150,7 +229,7 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
         new Container(
           padding: new EdgeInsets.all(0.0),
           child: new IconButton(
-            icon: (_isFavorited
+            icon: (_isFavorite
                 ? new Icon(Icons.star)
                 : new Icon(Icons.star_border)),
             color: Colors.red[500],
@@ -379,5 +458,46 @@ class _TapBoxCState extends State<TapBoxC> {
         ),
       ),
     );
+  }
+}
+
+
+//------------------------From------------------
+class FormWidget extends StatefulWidget {
+  FormWidget({Key key}) :super(key: key);
+
+  @override
+  _FormWidgetState createState() => new _FormWidgetState();
+}
+
+class _FormWidgetState extends State<FormWidget> {
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return new Form(
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            new TextFormField(
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please enter some text';
+                }
+                return null;
+              },
+            ), new Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: new RaisedButton(
+                onPressed: () {
+                  if (_formKey.currentState.validate()) {
+
+                  }
+                },
+                child: Text('submit'),
+              ),
+            )
+          ],
+        ));
   }
 }
