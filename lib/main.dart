@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -41,6 +42,15 @@ class MyApp extends StatelessWidget {
                     new TextSectionWidget(),
                     new TapRow(),
                     new FormWidget(),
+                    new CounterSimple(),
+                    new Counter(),
+                    new ShoppingList(
+                      products: <Product>[
+                        new Product(name: 'Eggs'),
+                        new Product(name: 'Flour'),
+                        new Product(name: 'Chocolate chips'),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -512,7 +522,7 @@ class _FormWidgetState extends State<FormWidget> {
     return
       new Container(
         decoration: new BoxDecoration(
-          color: Colors.redAccent
+            color: Colors.redAccent
         ),
         margin: const EdgeInsets.all(16),
         child: new Form(
@@ -541,5 +551,202 @@ class _FormWidgetState extends State<FormWidget> {
           ),
         ),
       );
+  }
+}
+
+class CounterSimple extends StatefulWidget {
+
+  @override
+  State<StatefulWidget> createState() {
+    return new _CounterSimpleState();
+  }
+}
+
+
+class _CounterSimpleState extends State<CounterSimple> {
+  int _counter = 0;
+
+  void _increment() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      margin: const EdgeInsets.symmetric(horizontal: 15),
+      child: new Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          new Text('simple'),
+          new RaisedButton(
+            onPressed: _increment,
+            child: new Text('Increment'),
+          ),
+          new Text('Counter:$_counter')
+        ],
+      ),
+    );
+  }
+}
+
+
+class CounterDisplay extends StatelessWidget {
+  CounterDisplay({
+    Key key,
+    this.count
+  }) :super(key: key);
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return new Text('Count: $count');
+  }
+}
+
+class CounterIncrement extends StatelessWidget {
+  CounterIncrement({
+    Key key,
+    @required this.onPressed
+  }) :super(key: key);
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return new RaisedButton(
+      onPressed: onPressed,
+      child: new Text('Increment'),
+    );
+  }
+}
+
+//------在Flutter中，事件流是“向上”传递的，而状态流是“向下”传递的------------------
+//更改计数器（CounterIncrement）向上传递事件，修改_counter,状态改变向下传递，显示 计数器（CounterDisplay）更改显示
+class Counter extends StatefulWidget {
+  @override
+  _CounterState createState() => new _CounterState();
+}
+
+class _CounterState extends State<Counter> {
+  int _counter = 0;
+
+  void _increment() {
+    setState(() {
+      ++_counter;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      margin: const EdgeInsets.symmetric(horizontal: 15),
+      child: new Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          new Text('difficulty'),
+          new CounterIncrement(onPressed: _increment,),
+          new CounterDisplay(count: _counter,)
+        ],
+      ),
+    );
+  }
+}
+
+//const关键字不可修改且必须初始化
+class Product {
+  const Product({this.name});
+
+  final String name;
+}
+
+typedef void CartChangedCallback(Product product, bool inCart);
+
+class ShoppingListItem extends StatelessWidget {
+  ShoppingListItem({
+    Product product,
+    this.inCart,
+    this.onCartChanged
+  })
+      : product = product,
+        super(key: new ObjectKey(product));
+
+  final Product product;
+  final bool inCart;
+  final CartChangedCallback onCartChanged;
+
+  Color _getColor(BuildContext context) {
+    return inCart ? Colors.black54 : Theme
+        .of(context)
+        .primaryColor;
+  }
+
+  TextStyle _getTextStyle(BuildContext context) {
+    if (!inCart) return null;
+    return new TextStyle(
+      color: Colors.black54,
+      decoration: TextDecoration.lineThrough,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new ListTile(
+      onTap: () {
+        onCartChanged(product, !inCart);
+      },
+      leading: new CircleAvatar(
+        backgroundColor: _getColor(context),
+        child: new Text(product.name[0]),
+      ),
+      title: new Text(product.name, style: _getTextStyle(context)),
+    );
+  }
+}
+
+class ShoppingList extends StatefulWidget {
+  ShoppingList({
+    Key key,
+    this.products
+  }) : super(key: key);
+
+  final List<Product> products;
+
+  @override
+  _ShoppingListState createState() => new _ShoppingListState();
+}
+
+class _ShoppingListState extends State<ShoppingList> {
+  Set<Product> _shoppingCart = new Set<Product>();
+
+  void _handleCartChanged(Product product, bool inCart) {
+    setState(() {
+      if (inCart)
+        _shoppingCart.add(product);
+      else
+        _shoppingCart.remove(product);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      child: new ListView(
+        shrinkWrap: true, //解决无限高度问题
+        physics: new NeverScrollableScrollPhysics(), //禁用滑动事件
+        padding: new EdgeInsets.symmetric(vertical: 8.0),
+        children: widget.products.map((Product product) {
+          return new ShoppingListItem(
+            product: product,
+            inCart: _shoppingCart.contains(product),
+            onCartChanged: _handleCartChanged,
+          );
+        }).toList(),
+      ),
+    );
   }
 }
